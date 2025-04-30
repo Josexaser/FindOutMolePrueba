@@ -4,7 +4,6 @@ import 'package:findoutmole/screen/FootBar.dart';
 import 'package:findoutmole/screen/menu_screen/Archivos.dart'; // Pantalla de menu
 import 'package:findoutmole/screen/menu_screen/Contacto.dart'; // Pantalla de contacto
 import 'package:findoutmole/screen/login_screen/login_screen.dart'; // Pantalla de login
- // Pantalla de archivos
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -21,7 +20,7 @@ class HomePage extends StatelessWidget {
             icon: Icon(Icons.logout),
             color: IconTheme.of(context).color,
             onPressed: () {
-              Navigator.pushAndRemoveUntil( // Se cierra sesion borrando las rutas anteriores
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => LoginPage()),
                 (Route<dynamic> route) => false,
@@ -87,17 +86,11 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
+                        // Navega a PerfilPage sin pasar parámetros
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PerfilPage(
-                              nombre: 'Nombre no definido',
-                              apellidos: 'Apellidos no definidos',
-                              email: 'Correo no definido',
-                              edad: 'Edad no definida',
-                              peso: 'Peso no definido',
-                              telefono: 'Teléfono no definido',
-                            ),
+                            builder: (context) => PerfilPage(), // ✅ Sin parámetros
                           ),
                         );
                       },

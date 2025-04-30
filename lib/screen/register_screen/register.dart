@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:findoutmole/screen/register_screen/contraseña.dart';
 import 'package:findoutmole/screen/register_screen/email.dart';
 //import 'package:findoutmole/screen/register_screen/nombre_de_usuario.dart';
-import 'package:findoutmole/screen/register_screen/registerButtom.dart';
+import 'package:findoutmole/screen/register_screen/registerButton.dart';
 import 'package:findoutmole/screen/register_screen/textoInicial.dart';
 import 'package:findoutmole/screen/FootBar.dart'; // Importa el pie de página
 

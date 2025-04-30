@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:findoutmole/screen/menu_screen/Perfil.dart'; // Importa la página de perfil
-import 'package:findoutmole/screen/FootBar.dart'; // Importa el pie de página
+import 'package:findoutmole/screen/menu_screen/Perfil.dart';
+import 'package:findoutmole/screen/FootBar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FormulariosPage extends StatefulWidget {
   const FormulariosPage({super.key});
@@ -24,28 +26,22 @@ class _FormulariosPageState extends State<FormulariosPage> {
       appBar: AppBar(title: Text('Formulario de Datos Personales')),
       body: Stack(
         children: [
-          // Imagen de fondo que cubre toda la pantalla
           Positioned.fill(
             child: Image.asset(
-              'assets/images/2.png', // Ruta de la imagen
-              fit:
-                  BoxFit.cover, // Ajusta la imagen para cubrir toda la pantalla
+              'assets/images/2.png',
+              fit: BoxFit.cover,
             ),
           ),
-          // Contenido principal
           SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight:
-                    MediaQuery.of(
-                      context,
-                    ).size.height, // Asegura que ocupe toda la pantalla
+                minHeight: MediaQuery.of(context).size.height,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 140), // Espaciado para bajar los campos
+                    SizedBox(height: 140),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -60,9 +56,7 @@ class _FormulariosPageState extends State<FormulariosPage> {
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _nombre = value!;
-                            },
+                            onSaved: (value) => _nombre = value!,
                           ),
                           SizedBox(height: 16),
                           _buildTextField(
@@ -74,9 +68,7 @@ class _FormulariosPageState extends State<FormulariosPage> {
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _apellidos = value!;
-                            },
+                            onSaved: (value) => _apellidos = value!,
                           ),
                           SizedBox(height: 16),
                           _buildTextField(
@@ -86,16 +78,12 @@ class _FormulariosPageState extends State<FormulariosPage> {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor, ingresa tu correo electrónico';
                               }
-                              if (!RegExp(
-                                r'^[^@]+@[^@]+\.[^@]+',
-                              ).hasMatch(value)) {
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                                 return 'Por favor, ingresa un correo válido';
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _email = value!;
-                            },
+                            onSaved: (value) => _email = value!,
                           ),
                           SizedBox(height: 16),
                           _buildTextField(
@@ -111,9 +99,7 @@ class _FormulariosPageState extends State<FormulariosPage> {
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _edad = value!;
-                            },
+                            onSaved: (value) => _edad = value!,
                           ),
                           SizedBox(height: 16),
                           _buildTextField(
@@ -129,9 +115,7 @@ class _FormulariosPageState extends State<FormulariosPage> {
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _peso = value!;
-                            },
+                            onSaved: (value) => _peso = value!,
                           ),
                           SizedBox(height: 16),
                           _buildTextField(
@@ -144,30 +128,51 @@ class _FormulariosPageState extends State<FormulariosPage> {
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _telefono = value!;
-                            },
+                            onSaved: (value) => _telefono = value!,
                           ),
                           SizedBox(height: 32),
                           Center(
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   _formKey.currentState!.save();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => PerfilPage(
-                                            nombre: _nombre,
-                                            apellidos: _apellidos,
-                                            email: _email,
-                                            edad: _edad,
-                                            peso: _peso,
-                                            telefono: _telefono,
-                                          ),
-                                    ),
-                                  );
+
+                                  try {
+                                    final user = FirebaseAuth.instance.currentUser;
+
+                                    if (user != null) {
+                                      final uid = user.uid;
+
+                                      await FirebaseFirestore.instance
+                                          .collection('usuarios')
+                                          .doc(uid) // ✅ actualiza el documento del usuario
+                                          .set({
+                                        'nombre': _nombre,
+                                        'apellidos': _apellidos,
+                                        'email': _email,
+                                        'edad': _edad,
+                                        'peso': _peso,
+                                        'telefono': _telefono,
+                                        'fecha': DateTime.now(),
+                                      });
+
+                                      // Navega a PerfilPage sin pasar parámetros
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PerfilPage(), // ✅ Sin parámetros
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('No hay usuario autenticado')),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error al guardar los datos: $e')),
+                                    );
+                                  }
                                 }
                               },
                               child: Text('Enviar'),
@@ -200,9 +205,7 @@ class _FormulariosPageState extends State<FormulariosPage> {
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
         filled: true,
-        fillColor: Colors.white.withOpacity(
-          0.8,
-        ), // Fondo blanco con transparencia
+        fillColor: Colors.white.withOpacity(0.8),
       ),
       keyboardType: keyboardType,
       validator: validator,
